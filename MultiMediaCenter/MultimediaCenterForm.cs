@@ -3332,10 +3332,14 @@ namespace MultiMediaCenter
                 //if (System.IO.File.Exists(fSpec))
                 {
                     pictureBox.Visible = true;
-                    if (System.IO.File.Exists(fSpec))
-                        pictureBox.ImageLocation = fSpec;
-                    else
-                        pictureBox.ImageLocation = this.GetArcFSpec(fSpec);
+                    if (pictureBox.Image != null)
+                    {
+                        pictureBox.Image.Dispose();
+                        pictureBox.Image = null;
+                    }
+                    pictureBox.ImageLocation = null;
+                    string imgSpec = System.IO.File.Exists(fSpec) ? fSpec : this.GetArcFSpec(fSpec);
+                    pictureBox.Image = utils.GetImageFromFile(imgSpec);
                 }
                 AVPlayerBox.Visible = false;
                 AVPlayerBox.close();

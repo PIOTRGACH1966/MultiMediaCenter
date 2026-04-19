@@ -220,9 +220,16 @@ namespace MultiMediaCenter
             {
                 textBox.Visible = false;
 
-                pictureBox.Image = null;
-                pictureBox.ImageLocation = fSpec;
-                Image img = new Bitmap(fSpec);
+                if (pictureBox.Image != null)
+                {
+                    pictureBox.Image.Dispose();
+                    pictureBox.Image = null;
+                }
+                pictureBox.ImageLocation = null;
+                Image img = utils.GetImageFromFile(fSpec);
+                if (img == null)
+                    return;
+                pictureBox.Image = img;
                 //Size imageSize = new Size(img.Width, img.Height);
                 int x = 0, y = 0;
                 if (zoomFactor == 1)

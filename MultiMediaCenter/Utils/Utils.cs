@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Data;
@@ -138,9 +139,96 @@ namespace MultiMediaCenter
                 {
                     retVal = Image.FromStream(fs);
                 }
+                ApplyExifOrientation(retVal);
             }
             catch { }
             return retVal;
+        }
+
+        private const int ExifOrientationTagId = 0x0112;
+        private const int ExifGpsLatitudeRefTagId = 0x0001;
+        private const int ExifGpsLatitudeTagId = 0x0002;
+        private const int ExifGpsLongitudeRefTagId = 0x0003;
+        private const int ExifGpsLongitudeTagId = 0x0004;
+
+        public static void ApplyExifOrientation(Image _image)
+        {
+            if (_image == null)
+                return;
+            try
+            {
+                if (!_image.PropertyIdList.Contains(ExifOrientationTagId))
+                    return;
+                int orientation = _image.GetPropertyItem(ExifOrientationTagId).Value[0];
+                switch (orientation)
+                {
+                    case 2: _image.RotateFlip(RotateFlipType.RotateNoneFlipX); break;
+                    case 3: _image.RotateFlip(RotateFlipType.Rotate180FlipNone); break;
+                    case 4: _image.RotateFlip(RotateFlipType.Rotate180FlipX); break;
+                    case 5: _image.RotateFlip(RotateFlipType.Rotate90FlipX); break;
+                    case 6: _image.RotateFlip(RotateFlipType.Rotate90FlipNone); break;
+                    case 7: _image.RotateFlip(RotateFlipType.Rotate270FlipX); break;
+                    case 8: _image.RotateFlip(RotateFlipType.Rotate270FlipNone); break;
+                    default: return;
+                }
+                _image.RemovePropertyItem(ExifOrientationTagId);
+            }
+            catch { }
+        }
+
+        public bool TryGetGpsCoordinates(string _fSpec, out double _latitude, out double _longitude)
+        {
+            _latitude = 0.0;
+            _longitude = 0.0;
+            if (String.IsNullOrEmpty(_fSpec) || !System.IO.File.Exists(_fSpec))
+                return false;
+            if (this.ComputeContentType(_fSpec) != ContentType.Picture)
+                return false;
+            try
+            {
+                using (FileStream fs = new FileStream(_fSpec, FileMode.Open, FileAccess.Read))
+                using (Image img = Image.FromStream(fs, false, false))
+                {
+                    int[] ids = img.PropertyIdList;
+                    if (!ids.Contains(ExifGpsLatitudeRefTagId) || !ids.Contains(ExifGpsLatitudeTagId)
+                        || !ids.Contains(ExifGpsLongitudeRefTagId) || !ids.Contains(ExifGpsLongitudeTagId))
+                        return false;
+                    char latRef = (char)img.GetPropertyItem(ExifGpsLatitudeRefTagId).Value[0];
+                    char lonRef = (char)img.GetPropertyItem(ExifGpsLongitudeRefTagId).Value[0];
+                    double lat = ReadRational3AsDegrees(img.GetPropertyItem(ExifGpsLatitudeTagId).Value);
+                    double lon = ReadRational3AsDegrees(img.GetPropertyItem(ExifGpsLongitudeTagId).Value);
+                    if (latRef == 'S' || latRef == 's') lat = -lat;
+                    if (lonRef == 'W' || lonRef == 'w') lon = -lon;
+                    if (lat < -90.0 || lat > 90.0 || lon < -180.0 || lon > 180.0)
+                        return false;
+                    _latitude = lat;
+                    _longitude = lon;
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static double ReadRational3AsDegrees(byte[] _bytes)
+        {
+            if (_bytes == null || _bytes.Length < 24)
+                return 0.0;
+            double deg = ReadUnsignedRational(_bytes, 0);
+            double min = ReadUnsignedRational(_bytes, 8);
+            double sec = ReadUnsignedRational(_bytes, 16);
+            return deg + (min / 60.0) + (sec / 3600.0);
+        }
+
+        private static double ReadUnsignedRational(byte[] _bytes, int _offset)
+        {
+            uint numerator = BitConverter.ToUInt32(_bytes, _offset);
+            uint denominator = BitConverter.ToUInt32(_bytes, _offset + 4);
+            if (denominator == 0)
+                return 0.0;
+            return (double)numerator / (double)denominator;
         }
 
         public string FileSizeDisplay(string _fSpec)
