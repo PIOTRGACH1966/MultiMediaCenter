@@ -1,0 +1,5 @@
+- jeden fizyczny plik widziany w dowolnej iloœci widoków
+- usuwanie linków i skrótów przy usuwaniu/przenoszeniu/renamowaniu pliku/folderu
+- dowolne sortowanie (w tym wspomagaj¹ce automaty chronologiczne i miesiêczne)
+- ustawianie i filtrowanie wg jakoœci
+- umieszczanie obok siebie plików o ró¿nych typach

@@ -1,0 +1,23 @@
+ConnectStringHome = Data Source=.;Initial Catalog=MultiMedia;Integrated Security=True
+ResourcesFolder = D:\Multimedia
+ArcFolder = T:\Multimedia
+BackupFolder = D:\!Bkp\Database\MultiMedia
+itemsPerRow = 2
+filesPerRow = 8
+initialTreeIconSize = 15
+initialThumbnailSize = 40
+initialFullScreenZoomFactorCoeff = 0.75
+initialFullScreenMoveDelta = 64
+TextEditorFSpec1 = "notepad.exe"
+TextEditorFSpec2 = "C:\Program Files (x86)\Multi-Edit Lite 2006\MeLite.exe" -SR"
+TextEditorsWorkingFolder = D:\Multimedia\Moje\!Roboczy
+PhotoEditorFSpec1 = "C:\Program Files (x86)\PhotoFiltre\PhotoFiltre.exe"
+PhotoEditorFSpec2 = "C:\Program Files (x86)\Advanced JPEG Compressor\ajc.exe"
+PhotoEditorFSpec3 = "C:\Program Files (x86)\FastStone Image Viewer\FSViewer.exe"
+PhotoEditorsWorkingFolder = D:\Multimedia\Moje\!Roboczy
+AudioEditorFSpec1 = "C:\Program Files (x86)\Audacity\audacity.exe"
+AudioEditorFSpec2 =
+AudioEditorsWorkingFolder = D:\Multimedia\Moje\!Roboczy
+VideoEditorFSpec1 = "D:\Install\AVP\Video\CaptureEdit\VirtualDub\VirtualDub.exe"
+VideoEditorFSpec2 =
+VideoEditorsWorkingFolder = D:\Multimedia\Moje\!Roboczy
