@@ -138,8 +138,8 @@ namespace MultiMediaCenter
                     System.IO.FileMode.Open, System.IO.FileAccess.Read))
                 {
                     retVal = Image.FromStream(fs);
+                    ApplyExifOrientation(retVal);
                 }
-                ApplyExifOrientation(retVal);
             }
             catch { }
             return retVal;
