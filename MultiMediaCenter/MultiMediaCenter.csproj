@@ -43,6 +43,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -62,6 +63,9 @@
     <Compile Include="Classes\PlayableObject.cs" />
     <Compile Include="Classes\ResourceFolder.cs" />
     <Compile Include="Classes\ResourceFile.cs" />
+    <Compile Include="Controls\DescriptionBubbleForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\ItemForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -110,6 +114,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Controls\DescriptionBubbleForm.resx">
+      <DependentUpon>DescriptionBubbleForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ItemForm.resx">
       <DependentUpon>ItemForm.cs</DependentUpon>
     </EmbeddedResource>

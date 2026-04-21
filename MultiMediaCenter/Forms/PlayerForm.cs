@@ -23,12 +23,16 @@ namespace MultiMediaCenter
         private double moveX = 0;
         private double moveY = 0;
         private double moveDelta;
+        private bool _showTextNotes;
 
-        public PlayerForm(double _initialZoomFactorCoeff, double _initialMoveDelta)
+        private DescriptionBubbleForm descriptionBubble = new DescriptionBubbleForm();
+
+        public PlayerForm(double _initialZoomFactorCoeff, double _initialMoveDelta, bool showTextNotes)
         {
             InitializeComponent();
             zoomFactorCoeff = _initialZoomFactorCoeff;
             moveDelta = _initialMoveDelta;
+            _showTextNotes = showTextNotes;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -213,7 +217,14 @@ namespace MultiMediaCenter
             if (currentNdx < 0 || currentNdx >= objectsToPlay.Count)
                 return;
             string fSpec = objectsToPlay[currentNdx].fSpec;
+
             fileNameLabel.Text = System.IO.Path.GetFileName(fSpec);
+
+            if (_showTextNotes)
+            {
+                ItemProps itemProps = utils.ReadSidecarProps(fSpec);
+                descriptionBubble.ShowFor(fSpec, itemProps.Description, this, pictureBox);
+            }
 
             ContentType contentType = utils.ComputeContentType(fSpec);
             if (contentType == ContentType.Picture)
@@ -275,6 +286,7 @@ namespace MultiMediaCenter
                 pictureBox.Show();
                 AVPlayerBox.Visible = false;
                 AVPlayerBox.close();
+                pictureBox.Focus();
             }
             else if (contentType == ContentType.Audio || contentType == ContentType.Video)
             {
@@ -282,7 +294,8 @@ namespace MultiMediaCenter
                 pictureBox.Visible = false;
                 AVPlayerBox.Size = fullScreenSize;
                 AVPlayerBox.URL = fSpec;
-                AVPlayerBox.Visible = true;                
+                AVPlayerBox.Visible = true;
+                AVPlayerBox.Focus();
             }
             else if (contentType == ContentType.Text)
             {
@@ -292,6 +305,7 @@ namespace MultiMediaCenter
                 pictureBox.Visible = false;
                 AVPlayerBox.Visible = false;
                 AVPlayerBox.close();
+                textBox.Focus();
             }
             else
             {

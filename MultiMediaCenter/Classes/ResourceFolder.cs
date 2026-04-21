@@ -102,6 +102,8 @@ namespace MultiMediaCenter
                 List<string> files = new List<string>();
                 foreach (string file in filesIO)
                 {
+                    if (!utils.IsMediaFile(file))
+                        continue;
                     if(!utils.IsThumbSpec(file))
                         files.Add(file);
                 }

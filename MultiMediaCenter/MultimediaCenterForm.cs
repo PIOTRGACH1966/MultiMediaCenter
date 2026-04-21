@@ -36,7 +36,9 @@ namespace MultiMediaCenter
         string arcFolder = String.Empty;
         string backupFolder = String.Empty;
 
+        float bigFontSize = 12.0F;
         float normalFontSize = 8.0F;
+        float smallFontSize = 7.0F;
         float importantFontSize = 7.75F;
         float shortcutFontSize = 7.0F;
 
@@ -102,6 +104,8 @@ namespace MultiMediaCenter
         private int treeIconSize = 15;
         private int thumbnailSize = 35;
         private Image.GetThumbnailImageAbort myCallback = null;
+
+        private DescriptionBubbleForm descriptionBubble = new DescriptionBubbleForm();
 
         #endregion
 
@@ -185,6 +189,8 @@ namespace MultiMediaCenter
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             SetTooltips();
             ShowCurrentInsertMode();
+
+            this.WindowState = FormWindowState.Maximized;
 
             onLoad = false;            
         }
@@ -615,7 +621,7 @@ namespace MultiMediaCenter
                 parentNode.Nodes.Add(folderNode);
             }
             if (!resourceFolder.Loaded)
-                resourceFolder.Load(_recursive, this.loadFullResourcesTreeCheck.Checked);
+                resourceFolder.Load(_recursive, true);
             if (_recursive)
             {
                 foreach (ResourceFolder rf in resourceFolder.subFolders)
@@ -2025,7 +2031,7 @@ namespace MultiMediaCenter
                 currentNdx = this.playItemsButton_AddView(currentViewLink, objectsToPlay);
             if (objectsToPlay.Count == 0)
                 return;
-            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta);
+            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta, uxShowTextNotes.Checked);
             fsp.objectsToPlay = objectsToPlay;
             fsp.startNdx = (currentNdx >= 0 ? currentNdx : 0);
             fsp.ShowDialog();
@@ -2108,6 +2114,31 @@ namespace MultiMediaCenter
         #region Resources Folders tree
 
         #region Select
+
+        private void foldersTreeView_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            TreeNode n = e.Node;
+            if (n == null) return;
+            // Interesuje nas tylko wezel z pojedynczym placeholderem "(not loaded)" (Tag==null)
+            if (n.Nodes.Count != 1 || n.Nodes[0].Tag != null) return;
+
+            ResourceFolder rf = n.Tag as ResourceFolder;
+            if (rf == null) return;
+
+            Cursor prev = this.Cursor;
+            this.Cursor = Cursors.WaitCursor;
+            try
+            {
+                // Zaladuj aktualny poziom (subfoldery + pliki) jesli jeszcze nie zaladowany
+                if (!rf.Loaded)
+                    rf.Load(false, true);
+
+                n.Nodes.Clear();
+                foreach (ResourceFolder sub in rf.subFolders)
+                    this.PopulateFolder(n, sub, false);
+            }
+            finally { this.Cursor = prev; }
+        }
 
         private void resourcesTreeView_AfterSelect(object sender, TreeViewEventArgs e)
         {
@@ -3165,7 +3196,7 @@ namespace MultiMediaCenter
                 i++;
             }
             AVPlayerBox.close();
-            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta);
+            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta, uxShowTextNotes.Checked);
             fsp.objectsToPlay = objectsToPlay;
             fsp.startNdx = currentNdx;
             fsp.ShowDialog();
@@ -3322,6 +3353,7 @@ namespace MultiMediaCenter
                 AVPlayerBox.close();
                 playFileNameLabel.Text = String.Empty;
                 saveTextButton.Visible = false;
+                descriptionBubble.Hide();
                 return;
             }
             playViewMode = _viewMode;
@@ -3344,6 +3376,16 @@ namespace MultiMediaCenter
                 AVPlayerBox.Visible = false;
                 AVPlayerBox.close();
                 saveTextButton.Visible = false;
+                ItemProps itemProps = utils.ReadSidecarProps(fSpec);
+                if (itemProps != null && !string.IsNullOrEmpty(itemProps.Description))
+                {
+                    descriptionBubble.ShowFor(fSpec, itemProps.Description, this, pictureBox);
+                }
+                else
+                {
+                    descriptionBubble.Hide();
+                }
+                filesListView.Focus();
             }
             else if(contentType == ContentType.Audio || contentType == ContentType.Video)
             {
@@ -3360,6 +3402,16 @@ namespace MultiMediaCenter
                 if (!playAVCheck.Checked)
                     AVPlayerBox.close();
                 saveTextButton.Visible = false;
+                ItemProps itemProps = utils.ReadSidecarProps(fSpec);
+                if (itemProps != null && !string.IsNullOrEmpty(itemProps.Description))
+                {
+                    descriptionBubble.ShowFor(fSpec, itemProps.Description, this, pictureBox);
+                }
+                else
+                {
+                    descriptionBubble.Hide();
+                }
+                filesListView.Focus();
             }
             else if (contentType == ContentType.Text)
             {
@@ -3374,7 +3426,8 @@ namespace MultiMediaCenter
                 }
                 pictureBox.Visible = false;
                 AVPlayerBox.Visible = false;
-                AVPlayerBox.close();                
+                AVPlayerBox.close();
+                filesListView.Focus();
             }
             else
             {
@@ -3620,6 +3673,18 @@ namespace MultiMediaCenter
                 _lvi.ForeColor = Color.Blue;
             else
                 _lvi.ForeColor = Color.Black;
+            ItemProps itemProps = utils.ReadSidecarProps(rf.FileSpec);
+            if (itemProps != null)
+            {
+                if (itemProps.Value == ItemValue.High)
+                {
+                    _lvi.Font = new Font(_lvi.Font.FontFamily.Name, bigFontSize, FontStyle.Bold);
+                }
+                else if (itemProps.Value == ItemValue.Low)
+                {
+                    _lvi.Font = new Font(_lvi.Font.FontFamily.Name, smallFontSize, FontStyle.Regular);
+                }
+            }
         }
         private void AddImageToFilesImageList(ResourceFile _file)
         {
@@ -4115,6 +4180,11 @@ namespace MultiMediaCenter
         }
 
         #endregion
+
+        private void uxShowTextNotes_CheckedChanged(object sender, EventArgs e)
+        {
+            DescriptionBubbleForm.GlobalEnabled = uxShowTextNotes.Checked;
+        }
     }
 
     class ListViewItemComparer : IComparer

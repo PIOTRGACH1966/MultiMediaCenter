@@ -124,6 +124,7 @@
             this.filesPerRowSpin = new System.Windows.Forms.NumericUpDown();
             this.filesPerRowLabel = new System.Windows.Forms.Label();
             this.copyToRoboczyButton = new System.Windows.Forms.Button();
+            this.uxShowTextNotes = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AVPlayerBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.thumbnailSizeSpin)).BeginInit();
@@ -132,15 +133,16 @@
             // 
             // foldersTreeView
             // 
-            this.foldersTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.foldersTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.foldersTreeView.Location = new System.Drawing.Point(489, 30);
             this.foldersTreeView.Name = "foldersTreeView";
             this.foldersTreeView.Size = new System.Drawing.Size(243, 519);
             this.foldersTreeView.TabIndex = 6;
-            this.foldersTreeView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.resourcesTreeView_MouseDoubleClick);
+            this.foldersTreeView.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.foldersTreeView_BeforeExpand);
             this.foldersTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.resourcesTreeView_AfterSelect);
             this.foldersTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.resourcesTreeView_KeyUp);
+            this.foldersTreeView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.resourcesTreeView_MouseDoubleClick);
             // 
             // addAlbumButton
             // 
@@ -208,38 +210,39 @@
             // 
             // albumsTreeView
             // 
-            this.albumsTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.albumsTreeView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.albumsTreeView.HideSelection = false;
             this.albumsTreeView.Location = new System.Drawing.Point(7, 28);
             this.albumsTreeView.Name = "albumsTreeView";
             this.albumsTreeView.Size = new System.Drawing.Size(211, 479);
             this.albumsTreeView.TabIndex = 2;
-            this.albumsTreeView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.albumsTreeView_MouseDoubleClick);
             this.albumsTreeView.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.albumsTreeView_AfterSelect);
             this.albumsTreeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.albumsTreeView_KeyUp);
+            this.albumsTreeView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.albumsTreeView_MouseDoubleClick);
             // 
             // filesListView
             // 
-            this.filesListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.filesListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.filesListView.HideSelection = false;
             this.filesListView.Location = new System.Drawing.Point(733, 41);
             this.filesListView.Name = "filesListView";
             this.filesListView.ShowItemToolTips = true;
             this.filesListView.Size = new System.Drawing.Size(474, 250);
             this.filesListView.TabIndex = 8;
             this.filesListView.UseCompatibleStateImageBehavior = false;
-            this.filesListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.filesListView_MouseDoubleClick);
-            this.filesListView.Enter += new System.EventHandler(this.filesListView_Enter);
-            this.filesListView.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.filessListView_PreviewKeyDown);
             this.filesListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.filesListView_ItemSelectionChanged);
+            this.filesListView.Enter += new System.EventHandler(this.filesListView_Enter);
             this.filesListView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.filesListView_KeyUp);
+            this.filesListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.filesListView_MouseDoubleClick);
+            this.filesListView.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.filessListView_PreviewKeyDown);
             // 
             // pictureBox
             // 
-            this.pictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.pictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictureBox.Location = new System.Drawing.Point(734, 375);
@@ -251,8 +254,8 @@
             // 
             // itemsListView
             // 
-            this.itemsListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.itemsListView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.itemsListView.HideSelection = false;
             this.itemsListView.Location = new System.Drawing.Point(219, 41);
             this.itemsListView.Name = "itemsListView";
@@ -260,11 +263,11 @@
             this.itemsListView.Size = new System.Drawing.Size(269, 466);
             this.itemsListView.TabIndex = 4;
             this.itemsListView.UseCompatibleStateImageBehavior = false;
-            this.itemsListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.itemsListView_MouseDoubleClick);
-            this.itemsListView.Enter += new System.EventHandler(this.itemsListView_Enter);
-            this.itemsListView.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.itemsListView_PreviewKeyDown);
             this.itemsListView.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.itemsListView_ItemSelectionChanged);
+            this.itemsListView.Enter += new System.EventHandler(this.itemsListView_Enter);
             this.itemsListView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.itemsListView_KeyUp);
+            this.itemsListView.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.itemsListView_MouseDoubleClick);
+            this.itemsListView.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.itemsListView_PreviewKeyDown);
             // 
             // addViewButton
             // 
@@ -474,9 +477,9 @@
             // 
             // AVPlayerBox
             // 
-            this.AVPlayerBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.AVPlayerBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.AVPlayerBox.Enabled = true;
             this.AVPlayerBox.Location = new System.Drawing.Point(734, 375);
             this.AVPlayerBox.Name = "AVPlayerBox";
@@ -486,9 +489,9 @@
             // 
             // textBox
             // 
-            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.textBox.Location = new System.Drawing.Point(753, 393);
             this.textBox.Multiline = true;
             this.textBox.Name = "textBox";
@@ -1239,11 +1242,26 @@
             this.copyToRoboczyButton.UseVisualStyleBackColor = true;
             this.copyToRoboczyButton.Click += new System.EventHandler(this.copyToRoboczyButton_Click);
             // 
+            // uxShowTextNotes
+            // 
+            this.uxShowTextNotes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.uxShowTextNotes.AutoSize = true;
+            this.uxShowTextNotes.Checked = true;
+            this.uxShowTextNotes.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.uxShowTextNotes.Location = new System.Drawing.Point(628, 549);
+            this.uxShowTextNotes.Name = "uxShowTextNotes";
+            this.uxShowTextNotes.Size = new System.Drawing.Size(102, 17);
+            this.uxShowTextNotes.TabIndex = 73;
+            this.uxShowTextNotes.Text = "Show text notes";
+            this.uxShowTextNotes.UseVisualStyleBackColor = true;
+            this.uxShowTextNotes.CheckedChanged += new System.EventHandler(this.uxShowTextNotes_CheckedChanged);
+            // 
             // MultimediaCenterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1210, 611);
+            this.Controls.Add(this.uxShowTextNotes);
             this.Controls.Add(this.copyToRoboczyButton);
             this.Controls.Add(this.itemsCopyCutLabel);
             this.Controls.Add(this.cutItemsButton);
@@ -1451,6 +1469,7 @@
         private System.Windows.Forms.NumericUpDown filesPerRowSpin;
         private System.Windows.Forms.Label filesPerRowLabel;
         private System.Windows.Forms.Button copyToRoboczyButton;
+        private System.Windows.Forms.CheckBox uxShowTextNotes;
     }
 }
 

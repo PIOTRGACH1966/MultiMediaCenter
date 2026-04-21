@@ -6,7 +6,10 @@ using System.Text;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Web;
 using IWshRuntimeLibrary;
+using System.Web.Script.Serialization;
+using System.Windows.Forms;
 
 namespace MultiMediaCenter
 {
@@ -62,6 +65,19 @@ namespace MultiMediaCenter
                     }
             }
             return retVal;
+        }
+
+        private static readonly HashSet<string> _mediaFileExtensions =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+    ".jpg", ".jpeg", ".png", ".gif", ".bmp",
+    ".avi", ".mpeg", ".mp4", ".mov", ".mkv", ".webp"
+        };
+
+        public bool IsMediaFile(string filePath)
+        {
+            var ext = Path.GetExtension(filePath);
+            return !string.IsNullOrEmpty(ext) && _mediaFileExtensions.Contains(ext);
         }
 
         public string GetThumbSpec(string _fSpec)
@@ -174,6 +190,58 @@ namespace MultiMediaCenter
                 _image.RemovePropertyItem(ExifOrientationTagId);
             }
             catch { }
+        }
+
+        public ItemProps ReadSidecarProps(string _fSpec)
+        {
+            if (String.IsNullOrEmpty(_fSpec))
+            {
+                return null;
+            }
+            string jsonSpec = _fSpec + ".json";
+            if (!System.IO.File.Exists(jsonSpec))
+            {
+                return null;
+            }
+            try
+            {
+                string json = System.IO.File.ReadAllText(jsonSpec, Encoding.UTF8);
+                JavaScriptSerializer js = new JavaScriptSerializer();
+                js.MaxJsonLength = 16 * 1024 * 1024;
+                System.Collections.Generic.IDictionary<string, object> obj =
+                    js.DeserializeObject(json) as System.Collections.Generic.IDictionary<string, object>;
+                if (obj == null)
+                {
+                    return null;
+                }
+                string description = null;
+                ItemValue value = ItemValue.None;
+                bool descriptionRead = false;
+                bool valueRead = false;
+                foreach (var kv in obj)
+                {
+                    if (String.Equals(kv.Key, "description", StringComparison.OrdinalIgnoreCase))
+                    {
+                        description = kv.Value != null ? kv.Value.ToString() : null;
+                        descriptionRead = true;
+                    }
+                    else if (String.Equals(kv.Key, "value", StringComparison.OrdinalIgnoreCase))
+                    {
+                        value = kv.Value != null ? (ItemValue)Convert.ToInt16(kv.Value) : ItemValue.None;
+                        valueRead = true;
+                    }
+                    if(descriptionRead && valueRead)
+                    {
+                        break;
+                    }
+                }
+                return new ItemProps(description, value);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return null;
+            }
         }
 
         public bool TryGetGpsCoordinates(string _fSpec, out double _latitude, out double _longitude)
@@ -414,6 +482,25 @@ namespace MultiMediaCenter
             rd.Close();
             su.Close();
             return retVal;
+        }
+    }
+
+    public enum ItemValue
+    {
+        None = 0,
+        Low = 1,
+        Medium = 2,
+        High = 3
+    }
+    public class ItemProps
+    {
+        public string Description;
+        public ItemValue Value;
+
+        public ItemProps(string description, ItemValue value)
+        {
+            Description = description;
+            Value = value;
         }
     }
 }
