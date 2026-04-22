@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using MultiMediaCenter.Controls;
 
 namespace MultiMediaCenter
 {
@@ -3182,6 +3183,9 @@ namespace MultiMediaCenter
 
         private void playFilesButton_Click(object sender, EventArgs e)
         {
+            MapForm mapForm = new MapForm();
+            mapForm.ShowDialog();
+
             if (currentFile == null)
                 return;
 
