@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Windows.Forms;
 
@@ -27,12 +26,21 @@ namespace MultiMediaCenter
 
         private DescriptionBubbleForm descriptionBubble = new DescriptionBubbleForm();
 
+        private Timer slideshowTimer;
+        private bool isSlideshowActive = false;
+        private const int SlideshowInterval = 3000;
+
         public PlayerForm(double _initialZoomFactorCoeff, double _initialMoveDelta, bool showTextNotes)
         {
             InitializeComponent();
             zoomFactorCoeff = _initialZoomFactorCoeff;
             moveDelta = _initialMoveDelta;
             _showTextNotes = showTextNotes;
+
+            // Inicjalizacja timera
+            slideshowTimer = new Timer();
+            slideshowTimer.Interval = SlideshowInterval;
+            slideshowTimer.Tick += SlideshowTimer_Tick;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -46,6 +54,42 @@ namespace MultiMediaCenter
 
             this.MouseWheel += new MouseEventHandler(FormFullScreenPlayer_MouseWheel);
             this.PlayFile();
+            StartSlideshow(false);
+        }
+
+        private void SlideshowTimer_Tick(object sender, EventArgs e)
+        {
+            // Jeśli to film lub muzyka, nie przeskakuj automatycznie
+            if (!this.isPicture())
+            {
+                return;
+            }
+
+            if (currentNdx < objectsToPlay.Count - 1)
+            {
+                this.PlayNextFile();
+            }
+            else
+            {
+                StopSlideshow();
+            }
+        }
+
+        private void StartSlideshow(bool immediateNext = true)
+        {
+            isSlideshowActive = true;
+            slideshowTimer.Start();
+
+            if (immediateNext)
+            {
+                this.PlayNextFile();
+            }
+        }
+
+        private void StopSlideshow()
+        {
+            isSlideshowActive = false;
+            slideshowTimer.Stop();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -56,6 +100,29 @@ namespace MultiMediaCenter
 
         private void FormFullScreenPlayer_KeyUp(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.Space)
+            {
+                if (isSlideshowActive)
+                    StopSlideshow();
+                else
+                    StartSlideshow(true);
+            }
+            // 2. Jeśli naciśnięto klawisze nawigacji, zatrzymaj automat
+            else if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.PageDown ||
+                     e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+            {
+                StopSlideshow();
+
+                // Standardowa obsługa (którą już masz):
+                if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.Left) this.PlayPrevFile();
+                else if (e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Right) this.PlayNextFile();
+            }
+            // Reszta Twoich klawiszy (Home, End, Zoom itd.)
+            else if (e.KeyCode == Keys.Home)
+            {
+                StopSlideshow();
+                this.PlayFirstFile();
+            }
             if (e.KeyCode == Keys.Home)
                 this.PlayFirstFile();
             else if (e.Modifiers != Keys.Control && (e.KeyCode == Keys.Up || e.KeyCode == Keys.Left || e.KeyCode == Keys.PageUp))
@@ -218,12 +285,19 @@ namespace MultiMediaCenter
                 return;
             string fSpec = objectsToPlay[currentNdx].fSpec;
 
-            fileNameLabel.Text = System.IO.Path.GetFileName(fSpec);
+            fileNameLabel.Text = System.IO.Path.GetFileName(fSpec) + "              Press [SPACE] to pause/continue slide show...";
 
             if (_showTextNotes)
             {
                 ItemProps itemProps = utils.ReadSidecarProps(fSpec);
-                descriptionBubble.ShowFor(fSpec, itemProps.Description, this, pictureBox);
+                if (itemProps != null)
+                {
+                    descriptionBubble.ShowFor(fSpec, itemProps.Description, this, pictureBox);
+                }
+                else
+                {
+                    descriptionBubble.Hide();
+                }
             }
 
             ContentType contentType = utils.ComputeContentType(fSpec);

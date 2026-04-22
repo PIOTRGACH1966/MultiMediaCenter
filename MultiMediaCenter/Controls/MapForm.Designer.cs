@@ -1,4 +1,6 @@
-﻿namespace MultiMediaCenter.Controls
+﻿using System.Windows.Forms;
+
+namespace MultiMediaCenter.Controls
 {
     partial class MapForm
     {
@@ -29,6 +31,7 @@
         private void InitializeComponent()
         {
             this.gMapControl1 = new GMap.NET.WindowsForms.GMapControl();
+            this.pnlDragHandle = new System.Windows.Forms.Panel();
             this.SuspendLayout();
             // 
             // gMapControl1
@@ -36,6 +39,7 @@
             this.gMapControl1.Bearing = 0F;
             this.gMapControl1.CanDragMap = true;
             this.gMapControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.Padding = new Padding(0, 0, 10, 10);
             this.gMapControl1.EmptyTileColor = System.Drawing.Color.Navy;
             this.gMapControl1.GrayScaleMode = false;
             this.gMapControl1.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
@@ -61,14 +65,27 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.gMapControl1);
+            this.Controls.Add(this.pnlDragHandle);
+            this.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
             this.Name = "MapForm";
-            this.Size = new System.Drawing.Size(300, 300);
+            this.Size = new System.Drawing.Size(100, 300);
             this.ResumeLayout(false);
+
+            // 
+            // pnlDragHandle (Pasek do przesuwania)
+            // 
+            this.pnlDragHandle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.pnlDragHandle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlDragHandle.Height = 8;
+            this.pnlDragHandle.BackColor = System.Drawing.Color.FromArgb(200, 45, 45, 45); // Ciemnoszary, lekko przezroczysty
+            this.pnlDragHandle.Name = "pnlDragHandle";
+            this.pnlDragHandle.Cursor = System.Windows.Forms.Cursors.SizeAll;
 
         }
 
         #endregion
 
         private GMap.NET.WindowsForms.GMapControl gMapControl1;
+        private System.Windows.Forms.Panel pnlDragHandle;
     }
 }

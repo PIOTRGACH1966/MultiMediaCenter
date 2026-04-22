@@ -17,15 +17,36 @@ namespace MultiMediaCenter.Controls
         private Point resizeStartPoint;
         private Size resizeStartSize;
         private const int ResizeHandleSize = 12; // rozmiar obszaru resize'a w rogu
+        private Point dragOffset;
+
+        private enum ResizeDirection { None, Left, Right, Top, Bottom, BottomRight }
+        private ResizeDirection _currentResizeDir = ResizeDirection.None;
+        private const int EdgeMargin = 5; // Szerokość czułego obszaru krawędzi
 
         public MapForm()
         {
             InitializeComponent();
+
+            pnlDragHandle.MouseDown += DragHandle_MouseDown;
+            pnlDragHandle.MouseMove += DragHandle_MouseMove;
         }   
 
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            int targetWidth = 200;
+            int targetHeight = 300;
+
+            // Oblicz różnicę szerokości, aby zachować prawą krawędź
+            int widthDifference = this.Width - targetWidth;
+
+            // Ustaw nowy rozmiar i przesuń w prawo o różnicę
+            this.Size = new Size(targetWidth, targetHeight);
+            this.Left += widthDifference;
+
+            // Opcjonalnie: upewnij się, że kontrolka jest na wierzchu
+            this.BringToFront();
 
             // OnLoad na UserControl może się nie wywoła zaraz po InitializeComponent
             // dlatego inicjalizacja będzie w ShowLocation()
@@ -41,24 +62,16 @@ namespace MultiMediaCenter.Controls
             }
         }
 
-        // Deleguj mouse events do gMapControl1, żeby drag działał
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
-            // Sprawdź czy klikasz w rogu (resize handle)
-            if (IsInResizeHandle(e.Location))
+            if (_currentResizeDir != ResizeDirection.None)
             {
                 isResizing = true;
-                resizeStartPoint = e.Location;
+                resizeStartPoint = Cursor.Position; // Globalna pozycja myszy
                 resizeStartSize = this.Size;
-                this.Cursor = Cursors.SizeNWSE;
-            }
-            else if (gMapControl1 != null)
-            {
-                gMapControl1.Focus();
-                // Przekaż event do gMapControl1
-                gMapControl1.PerformLayout();
+                // Zapamiętaj startową pozycję kontrolki dla resize'u lewej strony
+                _resizeStartLocation = this.Location;
             }
         }
 
@@ -68,26 +81,37 @@ namespace MultiMediaCenter.Controls
 
             if (isResizing)
             {
-                // Oblicz nowy rozmiar
-                int deltaX = e.X - resizeStartPoint.X;
-                int deltaY = e.Y - resizeStartPoint.Y;
-
-                int newWidth = Math.Max(100, resizeStartSize.Width + deltaX);
-                int newHeight = Math.Max(100, resizeStartSize.Height + deltaY);
-
-                this.Size = new Size(newWidth, newHeight);
+                PerformResize(e);
+                return;
             }
-            else if (IsInResizeHandle(e.Location))
+
+            // Wykrywanie nad którą krawędzią jest mysz, aby zmienić kursor
+            if (e.X >= this.Width - ResizeHandleSize && e.Y >= this.Height - ResizeHandleSize)
             {
-                // Pokaż resize cursor
                 this.Cursor = Cursors.SizeNWSE;
+                _currentResizeDir = ResizeDirection.BottomRight;
+            }
+            else if (e.X <= EdgeMargin)
+            {
+                this.Cursor = Cursors.SizeWE;
+                _currentResizeDir = ResizeDirection.Left;
+            }
+            else if (e.X >= this.Width - EdgeMargin)
+            {
+                this.Cursor = Cursors.SizeWE;
+                _currentResizeDir = ResizeDirection.Right;
+            }
+            else if (e.Y >= this.Height - EdgeMargin)
+            {
+                this.Cursor = Cursors.SizeNS;
+                _currentResizeDir = ResizeDirection.Bottom;
             }
             else
             {
                 this.Cursor = Cursors.Default;
+                _currentResizeDir = ResizeDirection.None;
             }
         }
-
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
@@ -95,6 +119,56 @@ namespace MultiMediaCenter.Controls
             this.Cursor = Cursors.Default;
         }
 
+        private Point _resizeStartLocation;
+
+        private void PerformResize(MouseEventArgs e)
+        {
+            Point currentMousePos = Cursor.Position;
+            int deltaX = currentMousePos.X - resizeStartPoint.X;
+            int deltaY = currentMousePos.Y - resizeStartPoint.Y;
+
+            switch (_currentResizeDir)
+            {
+                case ResizeDirection.Right:
+                    this.Width = Math.Max(100, resizeStartSize.Width + deltaX);
+                    break;
+                case ResizeDirection.Bottom:
+                    this.Height = Math.Max(100, resizeStartSize.Height + deltaY);
+                    break;
+                case ResizeDirection.BottomRight:
+                    this.Width = Math.Max(100, resizeStartSize.Width + deltaX);
+                    this.Height = Math.Max(100, resizeStartSize.Height + deltaY);
+                    break;
+                case ResizeDirection.Left:
+                    // Resize lewej krawędzi wymaga zmiany szerokości I pozycji X
+                    int newWidth = Math.Max(100, resizeStartSize.Width - deltaX);
+                    if (newWidth > 100)
+                    {
+                        this.Left = _resizeStartLocation.X + deltaX;
+                        this.Width = newWidth;
+                    }
+                    break;
+            }
+        }
+
+        private void DragHandle_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                // Zapamiętaj gdzie kliknąłeś względem lewego górnego rogu kontrolki
+                dragOffset = e.Location;
+            }
+        }
+
+        private void DragHandle_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                // Oblicz nową pozycję całej kontrolki MapForm na formie-rodzicu
+                this.Left += e.X - dragOffset.X;
+                this.Top += e.Y - dragOffset.Y;
+            }
+        }
         private bool IsInResizeHandle(Point location)
         {
             // Sprawdź czy punkt jest w prawym dolnym rogu (resize handle)
