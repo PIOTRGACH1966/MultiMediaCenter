@@ -101,7 +101,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Controls\MapForm.cs">
-      <SubType>Form</SubType>
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\MapForm.Designer.cs">
       <DependentUpon>MapForm.cs</DependentUpon>

@@ -107,6 +107,7 @@ namespace MultiMediaCenter
         private Image.GetThumbnailImageAbort myCallback = null;
 
         private DescriptionBubbleForm descriptionBubble = new DescriptionBubbleForm();
+        private MapForm mapPanel = new MapForm();
 
         #endregion
 
@@ -191,6 +192,9 @@ namespace MultiMediaCenter
             SetTooltips();
             ShowCurrentInsertMode();
 
+            // Konfiguruj MapPanel (GPS panel w prawym dolnym rogu)
+            InitializeMapPanel();
+
             this.WindowState = FormWindowState.Maximized;
 
             onLoad = false;            
@@ -200,6 +204,27 @@ namespace MultiMediaCenter
         {
             base.OnShown(e);
             albumsTreeView.Select();
+        }
+
+        private void InitializeMapPanel()
+        {
+            // Skonfiguruj panel mapy — niech pokazuje się w prawym dolnym rogu
+            mapPanel.Dock = DockStyle.None;
+            mapPanel.Width = 350;
+            mapPanel.Height = 280;
+            mapPanel.BorderStyle = BorderStyle.Fixed3D;
+
+            // Pozycjonuj w prawym dolnym rogu (będzie ukryty, pokazywany tylko gdy potrzeba GPS)
+            mapPanel.Left = this.ClientSize.Width - mapPanel.Width - 5;
+            mapPanel.Top = this.ClientSize.Height - mapPanel.Height - 5;
+            mapPanel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+
+            // Dodaj do formy
+            this.Controls.Add(mapPanel);
+            mapPanel.BringToFront();
+
+            // Na razie ukryj (pokaże się gdy zdjęcie ma GPS)
+            mapPanel.Visible = false;
         }
 
         private void LoadAll()
@@ -2566,6 +2591,30 @@ namespace MultiMediaCenter
             currentFile = _file;
             Play(false);
             this.ShowCurrentFileLabel();
+
+            // Pokaż/ukryj mapę GPS jeśli zdjęcie ma współrzędne
+            if (_file != null)
+            {
+                double latitude, longitude;
+                System.Diagnostics.Debug.WriteLine($"SetCurrentFile: Sprawdzam GPS dla: {_file.FileName}");
+                if (utils.TryGetGpsCoordinates(_file.RealFileSpec, out latitude, out longitude))
+                {
+                    System.Diagnostics.Debug.WriteLine($"SetCurrentFile: GPS znalezione! lat={latitude}, lon={longitude}");
+                    mapPanel.ShowLocation(latitude, longitude, _file.FileName);
+                    mapPanel.Visible = true;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"SetCurrentFile: Brak GPS");
+                    mapPanel.Clear();
+                    mapPanel.Visible = false;
+                }
+            }
+            else
+            {
+                mapPanel.Clear();
+                mapPanel.Visible = false;
+            }
         }
         private void ShowCurrentFileLabel()
         {
@@ -3183,9 +3232,6 @@ namespace MultiMediaCenter
 
         private void playFilesButton_Click(object sender, EventArgs e)
         {
-            MapForm mapForm = new MapForm();
-            mapForm.ShowDialog();
-
             if (currentFile == null)
                 return;
 
@@ -3389,6 +3435,7 @@ namespace MultiMediaCenter
                 {
                     descriptionBubble.Hide();
                 }
+
                 filesListView.Focus();
             }
             else if(contentType == ContentType.Audio || contentType == ContentType.Video)
