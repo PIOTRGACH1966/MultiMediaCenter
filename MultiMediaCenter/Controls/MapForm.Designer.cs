@@ -39,11 +39,11 @@ namespace MultiMediaCenter.Controls
             this.gMapControl1.Bearing = 0F;
             this.gMapControl1.CanDragMap = true;
             this.gMapControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Padding = new Padding(0, 0, 10, 10);
             this.gMapControl1.EmptyTileColor = System.Drawing.Color.Navy;
             this.gMapControl1.GrayScaleMode = false;
             this.gMapControl1.HelperLineOption = GMap.NET.WindowsForms.HelperLineOptions.DontShow;
             this.gMapControl1.LevelsKeepInMemory = 5;
+            this.gMapControl1.Location = new System.Drawing.Point(5, 13);
             this.gMapControl1.MarkersEnabled = true;
             this.gMapControl1.MaxZoom = 18;
             this.gMapControl1.MinZoom = 1;
@@ -57,8 +57,19 @@ namespace MultiMediaCenter.Controls
             this.gMapControl1.ScaleMode = GMap.NET.WindowsForms.ScaleModes.Integer;
             this.gMapControl1.SelectedAreaFillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(65)))), ((int)(((byte)(105)))), ((int)(((byte)(225)))));
             this.gMapControl1.ShowTileGridLines = false;
+            this.gMapControl1.Size = new System.Drawing.Size(190, 382);
             this.gMapControl1.TabIndex = 0;
             this.gMapControl1.Zoom = 0D;
+            // 
+            // pnlDragHandle
+            // 
+            this.pnlDragHandle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(45)))));
+            this.pnlDragHandle.Cursor = System.Windows.Forms.Cursors.SizeAll;
+            this.pnlDragHandle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlDragHandle.Location = new System.Drawing.Point(5, 5);
+            this.pnlDragHandle.Name = "pnlDragHandle";
+            this.pnlDragHandle.Size = new System.Drawing.Size(190, 8);
+            this.pnlDragHandle.TabIndex = 1;
             // 
             // MapForm
             // 
@@ -66,20 +77,10 @@ namespace MultiMediaCenter.Controls
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.gMapControl1);
             this.Controls.Add(this.pnlDragHandle);
-            this.Padding = new System.Windows.Forms.Padding(5, 5, 5, 5);
             this.Name = "MapForm";
-            this.Size = new System.Drawing.Size(100, 300);
+            this.Padding = new System.Windows.Forms.Padding(5);
+            this.Size = new System.Drawing.Size(200, 400);
             this.ResumeLayout(false);
-
-            // 
-            // pnlDragHandle (Pasek do przesuwania)
-            // 
-            this.pnlDragHandle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.pnlDragHandle.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlDragHandle.Height = 8;
-            this.pnlDragHandle.BackColor = System.Drawing.Color.FromArgb(200, 45, 45, 45); // Ciemnoszary, lekko przezroczysty
-            this.pnlDragHandle.Name = "pnlDragHandle";
-            this.pnlDragHandle.Cursor = System.Windows.Forms.Cursors.SizeAll;
 
         }
 

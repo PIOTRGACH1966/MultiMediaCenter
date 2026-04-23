@@ -105,39 +105,30 @@ namespace MultiMediaCenter
                 if (isSlideshowActive)
                     StopSlideshow();
                 else
-                    StartSlideshow(true);
+                    StartSlideshow(false); // nie przeskakuj od razu do następnego
             }
             // 2. Jeśli naciśnięto klawisze nawigacji, zatrzymaj automat
             else if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.PageDown ||
-                     e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+                     e.KeyCode == Keys.Left || e.KeyCode == Keys.Right ||
+                     e.KeyCode == Keys.Home || e.KeyCode == Keys.End ||
+                     e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
             {
                 StopSlideshow();
-
-                // Standardowa obsługa (którą już masz):
-                if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.Left) this.PlayPrevFile();
-                else if (e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Right) this.PlayNextFile();
+                // Standardowa obsługa:
+                if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.Left || e.KeyCode == Keys.Up)
+                    this.PlayPrevFile();
+                else if (e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Right || e.KeyCode == Keys.Down)
+                    this.PlayNextFile();
+                else if (e.KeyCode == Keys.Home)
+                    this.PlayFirstFile();
+                else if (e.KeyCode == Keys.End)
+                    this.PlayLastFile();
             }
-            // Reszta Twoich klawiszy (Home, End, Zoom itd.)
-            else if (e.KeyCode == Keys.Home)
-            {
-                StopSlideshow();
-                this.PlayFirstFile();
-            }
-            if (e.KeyCode == Keys.Home)
-                this.PlayFirstFile();
-            else if (e.Modifiers != Keys.Control && (e.KeyCode == Keys.Up || e.KeyCode == Keys.Left || e.KeyCode == Keys.PageUp))
-                this.PlayPrevFile();
-            else if (e.Modifiers != Keys.Control && (e.KeyCode == Keys.Down || e.KeyCode == Keys.Right || e.KeyCode == Keys.PageDown))
-                this.PlayNextFile();
-            else if (e.KeyCode == Keys.End)
-                this.PlayLastFile();
-            //else if (e.KeyCode == Keys.OemMinus)
+            // Reszta Twoich klawiszy (Zoom itd.)
             else if ((int)(e.KeyCode) == 109)
                 this.PlayZoomOut();
-            //else if (e.KeyCode == Keys.Oemplus)
             else if ((int)(e.KeyCode) == 107)
                 this.PlayZoomIn();
-            //else if (e.KeyCode == Keys.OemClear)
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Left)
                 this.PlayMoveLeft();
             else if (e.Modifiers == Keys.Control && e.KeyCode == Keys.Right)
@@ -287,12 +278,17 @@ namespace MultiMediaCenter
 
             fileNameLabel.Text = System.IO.Path.GetFileName(fSpec) + "              Press [SPACE] to pause/continue slide show...";
 
+            ContentType contentType;
             if (_showTextNotes)
             {
                 ItemProps itemProps = utils.ReadSidecarProps(fSpec);
+                Control anchor = pictureBox;
+                contentType = utils.ComputeContentType(fSpec);
+                if (contentType == ContentType.Audio || contentType == ContentType.Video)
+                    anchor = AVPlayerBox;
                 if (itemProps != null)
                 {
-                    descriptionBubble.ShowFor(fSpec, itemProps.Description, this, pictureBox);
+                    descriptionBubble.ShowFor(fSpec, itemProps.Description, this, anchor);
                 }
                 else
                 {
@@ -300,7 +296,7 @@ namespace MultiMediaCenter
                 }
             }
 
-            ContentType contentType = utils.ComputeContentType(fSpec);
+            contentType = utils.ComputeContentType(fSpec);
             if (contentType == ContentType.Picture)
             {
                 textBox.Visible = false;

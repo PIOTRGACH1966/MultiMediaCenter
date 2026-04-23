@@ -17,6 +17,7 @@ namespace MultiMediaCenter.Controls
         private Point resizeStartPoint;
         private Size resizeStartSize;
         private const int ResizeHandleSize = 12; // rozmiar obszaru resize'a w rogu
+        private const int StartZoom = 5;
         private Point dragOffset;
 
         private enum ResizeDirection { None, Left, Right, Top, Bottom, BottomRight }
@@ -36,7 +37,7 @@ namespace MultiMediaCenter.Controls
             base.OnLoad(e);
 
             int targetWidth = 200;
-            int targetHeight = 300;
+            int targetHeight = 400;
 
             // Oblicz różnicę szerokości, aby zachować prawą krawędź
             int widthDifference = this.Width - targetWidth;
@@ -222,6 +223,7 @@ namespace MultiMediaCenter.Controls
 
                 gMapControl1.MinZoom = 1;
                 gMapControl1.MaxZoom = 18;
+                gMapControl1.Zoom = StartZoom;
                 gMapControl1.CanDragMap = true;
                 gMapControl1.DragButton = MouseButtons.Left;
 
@@ -247,20 +249,28 @@ namespace MultiMediaCenter.Controls
                 EnsureInitialized();
 
                 var location = new PointLatLng(latitude, longitude);
+                int zoom = StartZoom;
+                if (latitude > 60)
+                {
+                    zoom -= 1;
+                }
+
+                // Najpierw ustaw pozycję i zoom
                 gMapControl1.Position = location;
-                gMapControl1.Zoom = 12;
+                gMapControl1.Zoom = zoom;
 
-                // Usuń stare markery
+                // Dodaj marker
                 gMapControl1.Overlays.Clear();
-
-                // Dodaj nowy marker
                 var markers = new GMapOverlay("markers");
                 var marker = new GMarkerGoogle(location, GMarkerGoogleType.blue_dot);
                 marker.ToolTipText = toolTipText;
                 markers.Markers.Add(marker);
                 gMapControl1.Overlays.Add(markers);
 
-                // Upewnij się że gMapControl ma focus i jest na wierzchu
+                // Wymuś odświeżenie i przeliczenie pozycji
+                gMapControl1.Refresh();
+                gMapControl1.Position = location; // jeszcze raz po odświeżeniu
+
                 gMapControl1.Focus();
                 this.BringToFront();
 
@@ -272,7 +282,6 @@ namespace MultiMediaCenter.Controls
                 MessageBox.Show($"Błąd wyświetlania lokalizacji: {ex.Message}", "Błąd mapy");
             }
         }
-
         /// <summary>
         /// Wyczyść mapę
         /// </summary>

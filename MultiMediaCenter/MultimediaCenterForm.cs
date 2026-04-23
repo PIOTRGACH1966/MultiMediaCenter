@@ -211,7 +211,7 @@ namespace MultiMediaCenter
             // Skonfiguruj panel mapy — niech pokazuje się w prawym dolnym rogu
             mapPanel.Dock = DockStyle.None;
             mapPanel.Width = 350;
-            mapPanel.Height = 280;
+            mapPanel.Height = 400;
             mapPanel.BorderStyle = BorderStyle.Fixed3D;
 
             // Pozycjonuj w prawym dolnym rogu (będzie ukryty, pokazywany tylko gdy potrzeba GPS)
@@ -2595,11 +2595,15 @@ namespace MultiMediaCenter
             // Pokaż/ukryj mapę GPS jeśli zdjęcie ma współrzędne
             if (_file != null)
             {
-                double latitude, longitude;
+                double latitude, longitude;                
                 System.Diagnostics.Debug.WriteLine($"SetCurrentFile: Sprawdzam GPS dla: {_file.FileName}");
                 if (utils.TryGetGpsCoordinates(_file.RealFileSpec, out latitude, out longitude))
                 {
                     System.Diagnostics.Debug.WriteLine($"SetCurrentFile: GPS znalezione! lat={latitude}, lon={longitude}");
+                    if (_file.RealFileName.Contains("2026-04-22 14.42.31.000.jpg"))
+                    {
+                        latitude = 70;
+                    }
                     mapPanel.ShowLocation(latitude, longitude, _file.FileName);
                     mapPanel.Visible = true;
                 }
