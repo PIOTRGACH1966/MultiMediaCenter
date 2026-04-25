@@ -111,18 +111,33 @@ namespace MultiMediaCenter
             else if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.PageDown ||
                      e.KeyCode == Keys.Left || e.KeyCode == Keys.Right ||
                      e.KeyCode == Keys.Home || e.KeyCode == Keys.End ||
-                     e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+                     e.KeyCode == Keys.Up || e.KeyCode == Keys.Down ||
+                     (int)(e.KeyCode) == 109 || (int)(e.KeyCode) == 107 || (int)(e.KeyCode) == 106)
             {
                 StopSlideshow();
                 // Standardowa obsługa:
                 if (e.KeyCode == Keys.PageUp || e.KeyCode == Keys.Left || e.KeyCode == Keys.Up)
                     this.PlayPrevFile();
-                else if (e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Right || e.KeyCode == Keys.Down)
+                else if (e.KeyCode == Keys.PageDown || e.KeyCode == Keys.Right || e.KeyCode == Keys.Down ||
+                    e.KeyCode == Keys.Escape)
                     this.PlayNextFile();
                 else if (e.KeyCode == Keys.Home)
                     this.PlayFirstFile();
                 else if (e.KeyCode == Keys.End)
                     this.PlayLastFile();
+                else if ((int)(e.KeyCode) == 109)
+                    this.PlayZoomOut();
+                else if ((int)(e.KeyCode) == 107)
+                    this.PlayZoomIn();
+                else if ((int)(e.KeyCode) == 106)
+                    this.ResetAll();
+                else if (e.KeyCode == Keys.Escape)
+                {
+                    if (zoomFactor == 1)
+                        this.Close();
+                    else
+                        this.ResetAll();
+                }
             }
             // Reszta Twoich klawiszy (Zoom itd.)
             else if ((int)(e.KeyCode) == 109)
@@ -150,9 +165,9 @@ namespace MultiMediaCenter
         void FormFullScreenPlayer_MouseWheel(object sender, MouseEventArgs e)
         {
             if(e.Delta>0)
-                this.PlayZoomOut();
-            else if (e.Delta < 0)
                 this.PlayZoomIn();
+            else if (e.Delta < 0)
+                this.PlayZoomOut();
         }
         private void AVPlayerBox_KeyUpEvent(object sender, AxWMPLib._WMPOCXEvents_KeyUpEvent e)
         {

@@ -170,6 +170,29 @@ namespace MultiMediaCenter
         public MultimediaCenterForm()
         {
             InitializeComponent();
+
+            // Inicjalizacja labela loading
+            filesListViewLoadingLabel = new Label();
+            filesListViewLoadingLabel.Text = "Loading files, please wait...";
+            filesListViewLoadingLabel.BackColor = Color.FromArgb(220, 255, 255, 255);
+            filesListViewLoadingLabel.ForeColor = Color.Black;
+            filesListViewLoadingLabel.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+            filesListViewLoadingLabel.TextAlign = ContentAlignment.MiddleCenter;
+            filesListViewLoadingLabel.Visible = false;
+            filesListViewLoadingLabel.AutoSize = false;
+            filesListViewLoadingLabel.BorderStyle = BorderStyle.FixedSingle;
+            filesListViewLoadingLabel.BringToFront();
+            filesListView.Controls.Add(filesListViewLoadingLabel);
+            filesListView.Resize += (s, e) => CenterFilesListViewLoadingLabel();
+        }
+
+        private void CenterFilesListViewLoadingLabel()
+        {
+            if (filesListViewLoadingLabel == null) return;
+            filesListViewLoadingLabel.Size = new Size(Math.Min(350, filesListView.Width - 20), 40);
+            filesListViewLoadingLabel.Location = new Point(
+                (filesListView.Width - filesListViewLoadingLabel.Width) / 2,
+                (filesListView.Height - filesListViewLoadingLabel.Height) / 2);
         }
 
         #endregion
@@ -706,31 +729,59 @@ namespace MultiMediaCenter
             foldersTreeView.Select();
             //albumsTreeView.ExpandAll();
         }
+
+        private void ShowWaitLabel()
+        {
+            if (filesListViewLoadingLabel != null)
+            {
+                filesListViewLoadingLabel.Visible = true;
+                CenterFilesListViewLoadingLabel();
+                filesListViewLoadingLabel.BringToFront();
+                filesListView.Refresh();
+            }
+        }
+
         private void RefreshFilesListView(bool _refreshThumbs)
         {
-            ResourceFile currentObject = currentFile;
-            currentFolder.Refresh(this.loadFullResourcesTreeCheck.Checked, true);
-            resourcesTreeView_AfterSelect(null, null);
-            if (currentObject != null)
+            // Pokaż label "Loading..."
+            ShowWaitLabel();
+
+            try
             {
-                int i = 0;
-                foreach (ListViewItem lvi in filesListView.Items)
+                ResourceFile currentObject = currentFile;
+                currentFolder.Refresh(this.loadFullResourcesTreeCheck.Checked, true);
+                resourcesTreeView_AfterSelect(null, null);
+                if (currentObject != null)
                 {
-                    ResourceFile file = (ResourceFile)lvi.Tag;
-                    if (file.FileSpec == currentObject.FileSpec)
+                    int i = 0;
+                    foreach (ListViewItem lvi in filesListView.Items)
                     {
-                        lvi.Selected = true;
-                        lvi.Focused = true;
-                        filesListView.EnsureVisible(i);
-                        if (_refreshThumbs)
-                            file.Thumbnail = utils.SaveThumb(file.RealFileSpec);
-                        break;
+                        ResourceFile file = (ResourceFile)lvi.Tag;
+                        if (file.FileSpec == currentObject.FileSpec)
+                        {
+                            lvi.Selected = true;
+                            lvi.Focused = true;
+                            filesListView.EnsureVisible(i);
+                            if (_refreshThumbs)
+                                file.Thumbnail = utils.SaveThumb(file.RealFileSpec);
+                            break;
+                        }
+                        i++;
                     }
-                    i++;
                 }
+                filesListView.Select();
+                this.DisplayNOfLinks();
             }
-            filesListView.Select();
-            this.DisplayNOfLinks();
+            finally
+            {
+                HideWaitLabel();
+            }
+        }
+
+        private void HideWaitLabel()
+        {
+            if (filesListViewLoadingLabel != null)
+                filesListViewLoadingLabel.Visible = false;
         }
 
         #endregion
@@ -2177,6 +2228,9 @@ namespace MultiMediaCenter
                 if (tag == null)
                     return;
             }
+
+            ShowWaitLabel();
+
             SetCurrentFolder((ResourceFolder)tag);
             SetCurrentFile(null);
             
@@ -2215,6 +2269,9 @@ namespace MultiMediaCenter
                 afterGoToFileJ = false;
             }
             this.ShowCurrentFileLabel();
+
+            HideWaitLabel();
+
             this.Play(false);
         }
 

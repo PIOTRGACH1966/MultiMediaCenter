@@ -125,6 +125,7 @@
             this.filesPerRowLabel = new System.Windows.Forms.Label();
             this.copyToRoboczyButton = new System.Windows.Forms.Button();
             this.uxShowTextNotes = new System.Windows.Forms.CheckBox();
+            this.filesListViewLoadingLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AVPlayerBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.thumbnailSizeSpin)).BeginInit();
@@ -1256,11 +1257,22 @@
             this.uxShowTextNotes.UseVisualStyleBackColor = true;
             this.uxShowTextNotes.CheckedChanged += new System.EventHandler(this.uxShowTextNotes_CheckedChanged);
             // 
+            // filesListViewLoadingLabel
+            // 
+            this.filesListViewLoadingLabel.AutoSize = true;
+            this.filesListViewLoadingLabel.Location = new System.Drawing.Point(915, 157);
+            this.filesListViewLoadingLabel.Name = "filesListViewLoadingLabel";
+            this.filesListViewLoadingLabel.Size = new System.Drawing.Size(134, 13);
+            this.filesListViewLoadingLabel.TabIndex = 74;
+            this.filesListViewLoadingLabel.Text = "Loading files, please wait...";
+            this.filesListViewLoadingLabel.Visible = false;
+            // 
             // MultimediaCenterForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1210, 611);
+            this.Controls.Add(this.filesListViewLoadingLabel);
             this.Controls.Add(this.uxShowTextNotes);
             this.Controls.Add(this.copyToRoboczyButton);
             this.Controls.Add(this.itemsCopyCutLabel);
@@ -1470,6 +1482,7 @@
         private System.Windows.Forms.Label filesPerRowLabel;
         private System.Windows.Forms.Button copyToRoboczyButton;
         private System.Windows.Forms.CheckBox uxShowTextNotes;
+        private System.Windows.Forms.Label filesListViewLoadingLabel;
     }
 }
 
