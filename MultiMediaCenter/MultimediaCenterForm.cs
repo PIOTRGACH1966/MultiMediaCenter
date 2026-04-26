@@ -72,6 +72,10 @@ namespace MultiMediaCenter
         //private int filesPerRow = 8;
         //private int lastTimeSelectedMilisecondsDelay = 200;
 
+        // Zapamiętuje ostatnio aktywny panel do podglądu
+        private enum PreviewSource { Items, Albums, Folders, Files }
+        private PreviewSource currentPreviewSource = PreviewSource.Files;
+
         #endregion
 
         #region History
@@ -933,6 +937,7 @@ namespace MultiMediaCenter
         {
             if (albumsTreeView.SelectedNode == null)
                 return;
+            currentPreviewSource = PreviewSource.Albums;
             object tag = albumsTreeView.SelectedNode.Tag;
             if (tag == null)
             {
@@ -1419,6 +1424,7 @@ namespace MultiMediaCenter
 
         private void itemsListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
+            currentPreviewSource = PreviewSource.Items;
             if (e != null && e.Item != null && e.Item.Selected)
                 SetCurrentItem(e.Item.Tag as Item);
             //if (e != null && e.Item.Selected)
@@ -2098,6 +2104,11 @@ namespace MultiMediaCenter
 
         private void playItemsButton_Click(object sender, EventArgs e)
         {
+            playItems();
+        }
+
+        private void playItems()
+        {
             //if(currentItem == null)
             //    return;
             List<PlayableObject> objectsToPlay = new List<PlayableObject>();
@@ -2221,6 +2232,7 @@ namespace MultiMediaCenter
         {
             if (foldersTreeView.SelectedNode == null)
                 return;
+            currentPreviewSource = PreviewSource.Folders;
             object tag = foldersTreeView.SelectedNode.Tag;
             if (tag == null)
             {
@@ -2638,6 +2650,7 @@ namespace MultiMediaCenter
         {
             if (e != null && e.Item != null && e.Item.Selected)
                 SetCurrentFile((ResourceFile)(e.Item.Tag));
+            currentPreviewSource = PreviewSource.Files;
             //if (e != null && e.Item.Selected)
             this.FilesListSelected();
             //lastTimeFileSelected = DateTime.Now;
@@ -3293,6 +3306,14 @@ namespace MultiMediaCenter
 
         private void playFilesButton_Click(object sender, EventArgs e)
         {
+            if (currentPreviewSource == PreviewSource.Files || currentPreviewSource == PreviewSource.Folders)
+                playFiles();
+            else if (currentPreviewSource == PreviewSource.Albums || currentPreviewSource == PreviewSource.Items)
+                playItems();
+        }
+
+        private void playFiles()
+        {
             if (currentFile == null)
                 return;
 
@@ -3434,11 +3455,11 @@ namespace MultiMediaCenter
             return retVal;
         }
 
-        private void Play(bool _viewMode)
+        private void Play(bool calledFromView)
         {            
             string fSpec = String.Empty;
             ContentType contentType = ContentType.Unknown;
-            if (_viewMode)
+            if (calledFromView)
             {
                 if (currentItem != null)
                 {
@@ -3467,7 +3488,7 @@ namespace MultiMediaCenter
                 descriptionBubble.Hide();
                 return;
             }
-            playViewMode = _viewMode;
+            playViewMode = calledFromView;
             playFileNameLabel.Text = System.IO.Path.GetFileName(fSpec) + " (" + utils.FileSizeDisplay(fSpec) + ")";
             if(contentType == ContentType.Picture)
             {
@@ -3496,8 +3517,6 @@ namespace MultiMediaCenter
                 {
                     descriptionBubble.Hide();
                 }
-
-                filesListView.Focus();
             }
             else if(contentType == ContentType.Audio || contentType == ContentType.Video)
             {
@@ -3523,7 +3542,6 @@ namespace MultiMediaCenter
                 {
                     descriptionBubble.Hide();
                 }
-                filesListView.Focus();
             }
             else if (contentType == ContentType.Text)
             {
@@ -3539,7 +3557,6 @@ namespace MultiMediaCenter
                 pictureBox.Visible = false;
                 AVPlayerBox.Visible = false;
                 AVPlayerBox.close();
-                filesListView.Focus();
             }
             else
             {
@@ -3547,6 +3564,14 @@ namespace MultiMediaCenter
                 pictureBox.Visible = false;
                 AVPlayerBox.Visible = false;
                 saveTextButton.Visible = false;
+            }
+            if (calledFromView)
+            {
+                itemsListView.Focus();
+            }
+            else
+            {
+                filesListView.Focus();
             }
         }
         private string GetArcFSpec(string _fSpec)

@@ -514,8 +514,7 @@
             // 
             // playFilesButton
             // 
-            this.playFilesButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.playFilesButton.Location = new System.Drawing.Point(1138, 291);
+            this.playFilesButton.Location = new System.Drawing.Point(454, 255);
             this.playFilesButton.Name = "playFilesButton";
             this.playFilesButton.Size = new System.Drawing.Size(71, 36);
             this.playFilesButton.TabIndex = 63;
@@ -1272,6 +1271,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1210, 611);
+            this.Controls.Add(this.playFilesButton);
             this.Controls.Add(this.filesListViewLoadingLabel);
             this.Controls.Add(this.uxShowTextNotes);
             this.Controls.Add(this.copyToRoboczyButton);
@@ -1338,7 +1338,6 @@
             this.Controls.Add(this.thumbnailSizeSpin);
             this.Controls.Add(this.sizeLabel);
             this.Controls.Add(this.displayPictureThumbnailsCheck);
-            this.Controls.Add(this.playFilesButton);
             this.Controls.Add(this.playItemsButton);
             this.Controls.Add(this.textBox);
             this.Controls.Add(this.AVPlayerBox);
