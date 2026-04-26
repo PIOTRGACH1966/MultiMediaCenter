@@ -1419,7 +1419,7 @@ namespace MultiMediaCenter
         }
         private void itemsListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            playItemsButton.PerformClick();
+            playItems(false);
         }
 
         private void itemsListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -2104,10 +2104,10 @@ namespace MultiMediaCenter
 
         private void playItemsButton_Click(object sender, EventArgs e)
         {
-            playItems();
+            playItems(true);
         }
 
-        private void playItems()
+        private void playItems(bool slideshow)
         {
             //if(currentItem == null)
             //    return;
@@ -2119,7 +2119,7 @@ namespace MultiMediaCenter
                 currentNdx = this.playItemsButton_AddView(currentViewLink, objectsToPlay);
             if (objectsToPlay.Count == 0)
                 return;
-            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta, uxShowTextNotes.Checked);
+            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta, uxShowTextNotes.Checked, slideshow);
             fsp.objectsToPlay = objectsToPlay;
             fsp.startNdx = (currentNdx >= 0 ? currentNdx : 0);
             fsp.ShowDialog();
@@ -2643,7 +2643,7 @@ namespace MultiMediaCenter
         }
         private void filesListView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            playFilesButton.PerformClick();
+            playFiles(false);
         }
 
         private void filesListView_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
@@ -3307,12 +3307,12 @@ namespace MultiMediaCenter
         private void playFilesButton_Click(object sender, EventArgs e)
         {
             if (currentPreviewSource == PreviewSource.Files || currentPreviewSource == PreviewSource.Folders)
-                playFiles();
+                playFiles(true);
             else if (currentPreviewSource == PreviewSource.Albums || currentPreviewSource == PreviewSource.Items)
-                playItems();
+                playItems(true);
         }
 
-        private void playFiles()
+        private void playFiles(bool slideshow)
         {
             if (currentFile == null)
                 return;
@@ -3328,7 +3328,7 @@ namespace MultiMediaCenter
                 i++;
             }
             AVPlayerBox.close();
-            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta, uxShowTextNotes.Checked);
+            PlayerForm fsp = new PlayerForm(this.initialFullScreenZoomFactorCoeff, this.initialFullScreenMoveDelta, uxShowTextNotes.Checked, slideshow);
             fsp.objectsToPlay = objectsToPlay;
             fsp.startNdx = currentNdx;
             fsp.ShowDialog();

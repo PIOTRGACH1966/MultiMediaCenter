@@ -30,7 +30,10 @@ namespace MultiMediaCenter
         private bool isSlideshowActive = false;
         private const int SlideshowInterval = 3000;
 
-        public PlayerForm(double _initialZoomFactorCoeff, double _initialMoveDelta, bool showTextNotes)
+        private bool isDragging = false;
+        private Point lastMouseLocation;
+
+        public PlayerForm(double _initialZoomFactorCoeff, double _initialMoveDelta, bool showTextNotes, bool slideshow)
         {
             InitializeComponent();
             zoomFactorCoeff = _initialZoomFactorCoeff;
@@ -38,6 +41,14 @@ namespace MultiMediaCenter
             _showTextNotes = showTextNotes;
 
             // Inicjalizacja timera
+            if (slideshow)
+            {
+                InitlalizeSlideshowTimer();
+            }
+        }
+
+        private void InitlalizeSlideshowTimer()
+        {
             slideshowTimer = new Timer();
             slideshowTimer.Interval = SlideshowInterval;
             slideshowTimer.Tick += SlideshowTimer_Tick;
@@ -53,8 +64,47 @@ namespace MultiMediaCenter
             currentNdx = startNdx;
 
             this.MouseWheel += new MouseEventHandler(FormFullScreenPlayer_MouseWheel);
+            pictureBox.MouseDown += PictureBox_MouseDown;
+            pictureBox.MouseMove += PictureBox_MouseMove;
+            pictureBox.MouseUp += PictureBox_MouseUp;
+
             this.PlayFile();
             StartSlideshow(false);
+        }
+
+        private void PictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && zoomFactor != 1)
+            {
+                isDragging = true;
+                lastMouseLocation = e.Location;
+                StopSlideshow();
+            }
+        }
+
+        private void PictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging)
+            {
+                // Obliczamy różnicę ruchu
+                int deltaX = e.X - lastMouseLocation.X;
+                int deltaY = e.Y - lastMouseLocation.Y;
+
+                // Aktualizujemy globalne współrzędne przesunięcia
+                moveX += deltaX;
+                moveY += deltaY;
+
+                // Zapamiętujemy obecną pozycję do kolejnego kroku
+                // Uwaga: przy Move nie aktualizujemy lastMouseLocation o e.Location bezpośrednio, 
+                // bo przesunięcie PictureBoxa zmienia kontekst współrzędnych e.Location.
+                // Najbezpieczniej odświeżyć widok:
+                this.PlayFile();
+            }
+        }
+
+        private void PictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            isDragging = false;
         }
 
         private void SlideshowTimer_Tick(object sender, EventArgs e)
@@ -77,6 +127,10 @@ namespace MultiMediaCenter
 
         private void StartSlideshow(bool immediateNext = true)
         {
+            if(slideshowTimer == null)
+            {
+                return;
+            }
             isSlideshowActive = true;
             slideshowTimer.Start();
 
@@ -88,6 +142,10 @@ namespace MultiMediaCenter
 
         private void StopSlideshow()
         {
+            if (slideshowTimer == null)
+            {
+                return;
+            }
             isSlideshowActive = false;
             slideshowTimer.Stop();
         }
@@ -102,6 +160,10 @@ namespace MultiMediaCenter
         {
             if (e.KeyCode == Keys.Space)
             {
+                if(slideshowTimer == null)
+                {
+                    InitlalizeSlideshowTimer();
+                }
                 if (isSlideshowActive)
                     StopSlideshow();
                 else
@@ -285,16 +347,26 @@ namespace MultiMediaCenter
             return true;
         }
 
+        private int lastPlayedIndex = -1;
         private void PlayFile()
         {
             if (currentNdx < 0 || currentNdx >= objectsToPlay.Count)
                 return;
+
+            bool itemChenged = currentNdx != lastPlayedIndex;
+            if (itemChenged)
+            {
+                zoomFactor = 1;
+            }
+
+            lastPlayedIndex = currentNdx;
+
             string fSpec = objectsToPlay[currentNdx].fSpec;
 
             fileNameLabel.Text = System.IO.Path.GetFileName(fSpec) + "              Press [SPACE] to pause/continue slide show...";
 
             ContentType contentType;
-            if (_showTextNotes)
+            if (_showTextNotes && itemChenged)
             {
                 ItemProps itemProps = utils.ReadSidecarProps(fSpec);
                 Control anchor = pictureBox;
